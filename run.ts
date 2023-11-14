@@ -8,24 +8,27 @@ const repo = 'git@github.com:Volankey/vite-svg-resource-preview.git'
 const git = simpleGit()
 
 async function main() {
-  if (fs.existsSync('./findSvg')) {
-    fs.rmSync('./findSvg', { recursive: true })
-  }
-  await git.clone(repo, './findSvg', {
-    '--depth': 1,
-  })
-
   const args = process.argv.slice(2)
   console.log('args', args)
   const configPath = path.join(args[0])
 
   console.log('configPath', configPath)
+  const base = path.dirname(configPath)
+  const feDir = path.join(base, '.find-svg')
+  if (fs.existsSync(feDir)) {
+    fs.rmSync(feDir, { recursive: true })
+  }
+  await git.clone(repo, feDir, {
+    '--depth': 1,
+  })
+
+
 
   fs.writeFileSync(
     './vite.config.ts',
     `import { mergeConfig, defineConfig } from 'vite'
 import projectViteConfig from '${configPath}'
-import findSvgPlugin from './findSvg/findSvgPlugin'
+import findSvgPlugin from '${feDir}/findSvgPlugin'
 
 export default defineConfig((ops) => {
   return mergeConfig(projectViteConfig(ops), {
@@ -35,10 +38,15 @@ export default defineConfig((ops) => {
 `,
     'utf-8',
   )
+  // exec
+  execSync('pnpm i',{
+    cwd: feDir,
+    stdio: 'inherit',
+  })
   // run vite build
-  console.log(path.join(__dirname, '..'))
-  const ls = spawn('npx', ['vite', 'build', '-c', './svg/vite.config.ts'], {
-    cwd: path.join(__dirname, '..'),
+  console.log('base',base)
+  const ls = spawn('npx', ['vite', 'build', '-c', path.resolve(__dirname, './vite.config.ts')], {
+    cwd: base,
   })
   ls.stdout.on('data', (data) => {
     console.log(`[find svg]: ${data}`)
@@ -48,7 +56,7 @@ export default defineConfig((ops) => {
   })
   ls.on('exit', () => {
     execSync('npx vite dev', {
-      cwd: path.join(__dirname, './findSvg'),
+      cwd: feDir,
       stdio: 'inherit',
     })
   })

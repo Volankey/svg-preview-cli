@@ -1,7 +1,7 @@
 # 使用
 
 ```
-pnpm install @volankey/svg-resource
+pnpm install @volankey/svg-resource-preview
 ```
 
 ```

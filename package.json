@@ -1,6 +1,6 @@
 {
-  "name": "@volankey/svg-resource-preview-cli",
-  "version": "1.0.1",
+  "name": "@volankey/svg-resource-preview",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "bin": "index.js",
@@ -13,7 +13,10 @@
     "README.md",
     "run.ts"
   ],
- 
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "homepage": "https://github.com/Volankey/svg-preview-cli",
   "scripts": {
     "dev": "vite",
